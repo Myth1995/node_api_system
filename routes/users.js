@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require("../models/user");
+var BusinessContact = require("../models/businesscontact");
 
 
 const bcrypt = require('bcrypt');
@@ -61,35 +62,25 @@ router.post('/register', function(req, res, next) {
 
 router.post("/login", (req, res) => {
     // console.log(req.body.email);
-    
-    User.findOne({"email": req.body.email}, function(err, user_data){
-      // console.log(err)
-      // console.log(user_data)
+    BusinessContact.findOne({"elink": req.body.elink}, function(err, user_data){
 			if(err || !user_data){
 				let response = {
 					status : 402,
-					message : "Invalid username and password.",
+					message : "Invalid elink.",
 				};
         console.log(response.status)
         res.json(response)
-			} else {
-        if (bcrypt.compareSync( req.body.password , user_data.password)) {
-            var token = jwt.sign({ user: user_data.username, id: user_data._id } , 'secret' , {expiresIn : 60*60*24}) ;
-            res.json({
-              	message : "Login Successfully",
-              	token	: token ,
-                id: user_data._id,
-                phonenum: user_data.phonenum,
-                directphone: user_data.directphone,
-                status : 200 , 
-            });
-        }
-        else {
-          res.json({
-            message : "Password isn't correct.",
-            status : 401 , 
-          });
-        }
+			} 
+      else {
+        console.log(JSON.stringify(user_data));
+        console.log(user_data.direct_phone);
+        res.json({
+            message : "Get Successfully",
+            email: user_data.email_address,
+            phonenum: user_data.phone_number,
+            directphone: user_data.direct_phone,
+            status : 200 , 
+        });
 			}
 		});
 });
